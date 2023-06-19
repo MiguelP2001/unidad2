@@ -1,100 +1,28 @@
-from tkinter import *						
-import tkinter as tk
-from tkinter import messagebox as mb
-import sqlite3		
+import sqlite3
 
-conn=sqlite3.connect('login.db')
-c=conn.cursor()
+# Conectarse a la base de datos o crear una nueva si no existe
+conexion = sqlite3.connect('basedatos.db')
 
-def create_table():
-	c.execute("CREATE TABLE IF NOT EXISTS usuarios(Nombre TEXT,Apellido TEXT ,Usuario TEXT,Pass TEXT)")
-	conn.commit()
-	c.close()
-	conn.close()
+# Crear un cursor para ejecutar comandos SQL
+cursor = conexion.cursor()
 
-create_table()
+# Crear una tabla llamada 'registros' con columnas para nombre, apellido y edad
+cursor.execute('''CREATE TABLE IF NOT EXISTS registros (
+                    nombre TEXT,
+                    apellido TEXT,
+                    edad INTEGER
+                )''')
 
+# Obtener los datos del usuario
+nombre = input("Ingresa tu nombre: ")
+apellido = input("Ingresa tu apellido: ")
+edad = int(input("Ingresa tu edad: "))
 
-ventana=tk.Tk()
-ventana.title("_Mi primer Login_")	
-ventana.geometry("280x450+300+250")	
-	
-color='#c5e2f6'			
-ventana['bg']=color		
+# Insertar los datos en la tabla 'registros'
+cursor.execute("INSERT INTO registros VALUES (?, ?, ?)", (nombre, apellido, edad))
 
-Label(ventana,bg=color,text="Login").pack()
+# Guardar los cambios
+conexion.commit()
 
-Label(ventana,text="Usuario : ",bg=color).pack()	
-caja1=Entry(ventana)										
-caja1.pack()																
-Label(ventana,text="Contraseña : ",bg=color).pack()	
-caja2=Entry(ventana,show="*")												
-caja2.pack()							
-
-db=sqlite3.connect('login.db')		
-c=db.cursor()
-
-def login():				
-	usuario=caja1.get()		
-	contr=caja2.get()		
-	c.execute('SELECT * FROM usuarios WHERE Usuario = ? AND Pass = ?',(usuario,contr))
-	if c.fetchall():
-		mb.showinfo(title="Login Correcto",message="Usuario y contraseña correctos")		
-	else:
-		mb.showerror(title="Login incorrecto",message="Usuario o contraseña incorrecto")	
-	
-def nuevaVentana():							
-	newVentana=tk.Toplevel(ventana)			
-	newVentana.title("Registro de Usuario")	
-	newVentana.geometry("300x290+800+250")	
-	newVentana['bg']=color					
-	
-	labeExample=tk.Label(newVentana,text="Registro : ").pack	
-	Label(newVentana,text="Nombre : ").pack()		
-	caja3=Entry(newVentana)															
-	caja3.pack()
-	Label(newVentana,text="Apellidos : ").pack()	
-	caja4=Entry(newVentana)															
-	caja4.pack()
-	Label(newVentana,text="Usuario : ").pack()		
-	caja5=Entry(newVentana)															
-	caja5.pack()
-	Label(newVentana,text="Contraseña : ").pack()	
-	caja6=Entry(newVentana,show="*")												
-	caja6.pack()	
-	Label(newVentana,text="Repita la Contraseña : ").pack()	
-	caja7=Entry(newVentana,show="*")															 
-	caja7.pack()
-	def registro():				
-		Nombre=caja3.get()		
-		Apellido=caja4.get()	
-		Usr_reg=caja5.get()		
-		Contra_reg=caja6.get()	
-		Contra_reg_2=caja7.get() 
-		if(Contra_reg==Contra_reg_2):		
-			
-			c.execute("INSERT INTO usuarios values(\'"+Nombre+"\',\'"+Apellido+"\',\'"+Usr_reg+"\',\'"+Contra_reg+"')")
-			db.commit()			
-			mb.showinfo(title="Registro Correcto",message="Hola "+Nombre+" "+Apellido+" ¡¡ \nSu registro fue exitoso.")
-			newVentana.destroy()		
-		else:	
-			mb.showerror(title="Contraseña Incorrecta",message="Error¡¡¡ \nLas contraseñas no coinciden.")
-    
-	buttons=tk.Button(newVentana,text="Registrar ¡",command=registro,bg=color).pack(side="bottom")
-
-
-Label(ventana,text=" ",bg=color).pack()
-Button(text=" ENTRAR ",command=login,bg='#a6d4f2').pack()
-Label(ventana,text=" ",bg=color).pack()
-Label(ventana,text="No tienes una cuenta ? : ",bg=color).pack()
-boton1=Button(ventana,text="REGISTRO",bg='#a6d4f2',command=nuevaVentana).pack()
-
-
-ventana.mainloop()
-
-
-#En esta sección donde hice mis prácticas, hice un solo programa en el cual me base en la mayoría de las 
-#practicas guiadas que vimos en clase, use conocimientos como los de menú, login y registro, los cuales estan 
-#anidados a una base de datos en la cual guardo todos los usuarios que se procedan a registrar en el 
-#programa, igual use conocimientos de la unidad 1 como vienen siendo los atributos y encapsulamiento, ya 
-#que las clases y herencias no fueron necesarias para elaborar este proyecto.
+# Cerrar la conexión
+conexion.close()
